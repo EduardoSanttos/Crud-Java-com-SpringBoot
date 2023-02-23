@@ -11,6 +11,6 @@ import br.com.curso.crud_java.model.Usuario;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-	@Query(value = "select u from Usuario u where u.nome like %?1%") // O numero 1 representa a quantidade de parametros da consulta
+	@Query(value = "select u from Usuario u where upper(trim(u.nome)) like %?1%") // O numero 1 representa a quantidade de parametros da consulta
 	List<Usuario> buscarPorNome(String name);	
 }
