@@ -85,11 +85,20 @@ public class GreetingsController {
 	
 	@GetMapping(value = "buscarUsuarioId") 
 	@ResponseBody
-	public ResponseEntity<Usuario> BuscarUsuarioId(@RequestParam(name = "idUser") Long idUser) {
+	public ResponseEntity<Usuario> buscarUsuarioId(@RequestParam(name = "idUser") Long idUser) {
 
 		Usuario user = usuarioRepository.findById(idUser).get();
 
 		return new ResponseEntity<Usuario>(user, HttpStatus.OK);
+	}
+	
+	@GetMapping(value = "buscarPorNome") 
+	@ResponseBody
+	public ResponseEntity<List<Usuario>> buscarPorNome(@RequestParam(name = "name") String name) {
+
+		List<Usuario> user = usuarioRepository.buscarPorNome(name);
+
+		return new ResponseEntity<List<Usuario>>(user, HttpStatus.OK);
 	}
 }
 
