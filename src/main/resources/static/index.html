@@ -19,24 +19,64 @@
 	<form action="" id="formCadastroUser">
 
 		<div class="mb-3">
-			<label for="id" class="form_label">ID</label> <input type="text"
-				class="form-control" id="idUser" readonly="readonly">
+			<label for="id" class="form_label">ID</label>
+			 <input type="text" class="form-control" id="idUser" readonly="readonly">
 		</div>
 
 		<div class="mb-3">
-			<label for="nome" class="form_label">Nome do Usuário</label> <input
-				type="text" class="form-control" id="nomeUsuario">
+			<label for="nome" class="form_label">Nome do Usuário</label> 
+			<input type="text" class="form-control" id="nomeUsuario">
 		</div>
 
 		<div class="mb-3">
-			<label for="idade" class="form_label">Idade</label> <input
-				type="number" class="form-control" id="idade">
+			<label for="idade" class="form_label">Idade</label> 
+			<input type="number" class="form-control" id="idade">
 		</div>
 	</form>
 
 	<button type="button" class="btn btn-primary" onclick="salvarUsuario()">Salvar</button>
-	<button type="button" class="btn btn-success"
-		onclick="document.getElementById('formCadastroUser').reset();">Novo</button>
+	<button type="button" class="btn btn-success" onclick="document.getElementById('formCadastroUser').reset();">Novo</button>
+	<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalPesquisarUser">Pesquisar</button>
+
+
+	<div class="modal fade" id="modalPesquisarUser" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel">Pesquisa de usuários</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form>
+						<div class="mb-3">
+							<label for="recipient-name" class="col-form-label">Informe o nome:</label>
+							<input type="text" class="form-control" id="nameBusca">
+						</div>
+						<button type="button" class="btn btn-success" onclick="pesquisarUsuario()">Buscar</button>
+					</form>
+
+					<table class="table" id="tabelaUsuarios">
+						<thead>
+							<tr>
+								<th scope="col">Id</th>
+								<th scope="col">Nome</th>
+								<th scope="col">Editar</th>
+							</tr>
+						</thead>
+						<tbody>
+							
+						</tbody>
+					</table>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"	data-bs-dismiss="modal">Fechar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 
 	<script src="https://code.jquery.com/jquery-3.6.3.min.js"
 		integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
@@ -49,33 +89,74 @@
 		
 	</script>
 
-	<script type="text/javascript">
+	<script type="text/javascript">	
+	
+		function pesquisarUsuario() {
+			var nome = $('#nameBusca').val();
+			
+			if(nome != null && nome.trim() != ""){
+				$.ajax({
+					method : "GET",
+					url : "buscarPorNome",
+					data : "name=" + nome,
+					success : function(response) {
+						$('#tabelaUsuarios > tbody > tr').remove();
+						
+						for(var i = 0; i < response.length; i ++){
+							$('#tabelaUsuarios > tbody').append(
+									'<tr><td>' + response[i].id + 
+									'</td> <td>' + response[i].nome +
+									'</td> <td><button type="button" class="btn btn-secondary" onclick = "editarLista('+response[i].id+')">Ver</button></td> </tr>)');
+						}
+					}
+				}).fail(function(xhr, status, errorThrown) {
+					alert("Erro ao buscar usuario! " + xhr.responseText);
+				});
+			}
+		}
+		
+		
+		function editarLista(id){
+			$.ajax({
+				method : "GET",
+				url : "buscarUsuarioId",
+				data : "idUser=" + id,
+				success : function(response) {	
+					
+					("#idUser").val(response.id);
+					("#nomeUsuario").val(response.nome);
+					("#idade").val(response.idade);
+					
+					$('#modalPesquisarUser').modal('hide');
+				}
+			}).fail(function(xhr, status, errorThrown) {
+				alert("Erro ao buscar usuario por id! " + xhr.responseText);
+			});
+		}
+
 		function salvarUsuario() {
 
-			var id = $("#idUser").val();
-			var nome = $("#nomeUsuario").val();
-			var idade = $("#idade").val();
-			
+			var id = $('#idUser').val();
+			var nome = $('#nomeUsuario').val();
+			var idade = $('#idade').val();
 
 			$.ajax({
-				method : "POST",
-				url : "salvar",
+				method : 'POST',
+				url : 'salvar',
 				data : JSON.stringify({
 					id : id,
 					nome : nome,
 					idade : idade
 				}),
-				contentType : "application/json; charset=utf-8",
+				contentType : 'application/json; charset=utf-8',
 				success : function(response) {
-					
-					$("id").val(response.id);
+					$('#id').val(response.id);
 					alert("Salvo com sucesso!")
 				}
-			}).fail(function (xhr, status, errorThrown){
-				alert("Erro ao salvar usuario! " + xhr.responseText);
+			}).fail(function(xhr, status, errorThrown) {
+				alert('Erro ao salvar usuario! ' + xhr.responseText);
 			});
 		}
-		
 	</script>
 
 </body>
